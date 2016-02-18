@@ -19,13 +19,12 @@ can wire *ApplicationInfoResource*, if you have Dropwizard or Jersey web-service
 
 **Usage example:**
 ``` xml
+<!-- If you are using Dropwizard, or similar framework.  -->
 final Package currentPackage = getClass().getPackage();
-
-If you are using Dropwizard, or similar framework.
 final ApplicationInfoResource appInfoResource = new ApplicationInfoResource(currentPackage.getImplementationTitle());
 environment.jersey().register(appInfoResource);
 
-If your service is using Jersey load the resource by including this inside the WEB-INF/web.xml:
+<!-- If your service is using Jersey then load the resource by including this inside the WEB-INF/web.xml  -->
 <servlet>
     <servlet-name>jersey</servlet-name>
     <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
@@ -34,6 +33,9 @@ If your service is using Jersey load the resource by including this inside the W
         <param-value>manifestor</param-value>
     </init-param>
 </servlet>
+
+Note that you will also need to wire the ApplicationInfoResource bean inside your application context XML,
+so that you can specify the implementation title from there (which you can get from the manifest file itself).
 ```
 
 Manifest files are generally located under *META-INF/MANIFEST.MF* in your artifact (JAR, WAR, EAR), however they do not contain

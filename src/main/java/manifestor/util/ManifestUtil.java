@@ -46,9 +46,21 @@ public class ManifestUtil {
     public final static String ATTR_IMPLEMENTATION_TITLE = "Implementation-Title";
 
     public final static Optional<Map<String, String>> readManifestByImplementationTitle(final String implTitle) {
-        final Optional<Map<String, String>> optionalManifest = ManifestUtil.getManifestDetailsByAttribute(ATTR_IMPLEMENTATION_TITLE, implTitle);
+        final Optional<Map<String, String>> optionalManifest =
+                ManifestUtil.getManifestDetailsByAttribute(ATTR_IMPLEMENTATION_TITLE, implTitle);
 
         return optionalManifest;
+    }
+
+    public final static Optional<Map<String, String>> readManifestFromInputStream(final InputStream inputStream) {
+        try {
+            final Map<String, String> manifestMap = ManifestUtil.load(inputStream);
+            return Optional.of(manifestMap);
+        } catch (IOException ioex) {
+            logger.error("Failed to fetch manifest details", ioex);
+        }
+
+        return Optional.absent();
     }
 
     /**
@@ -64,7 +76,8 @@ public class ManifestUtil {
      * logger.info("Current package implementationTitle: {}", currentPackage.getImplementationTitle());
      * </code>
      */
-    public static Optional<Map<String, String>> getManifestDetailsByAttribute(final String attributeName, final String attributeValue) {
+    private static Optional<Map<String, String>> getManifestDetailsByAttribute(final String attributeName,
+                                                                              final String attributeValue) {
         try {
             final Collection<InputStream> manifestStreams = ManifestUtil.fetch();
 
@@ -89,8 +102,8 @@ public class ManifestUtil {
 
     private static Collection<InputStream> fetch() throws IOException {
         final Enumeration<URL> resources = Thread.currentThread()
-            .getContextClassLoader()
-            .getResources("META-INF/MANIFEST.MF");
+                .getContextClassLoader()
+                .getResources("META-INF/MANIFEST.MF");
 
         final Collection<URI> uris = new LinkedList<URI>();
         while (resources.hasMoreElements()) {

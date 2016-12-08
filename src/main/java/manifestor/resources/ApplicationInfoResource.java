@@ -18,6 +18,7 @@ package manifestor.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import javax.ws.rs.GET;
@@ -26,6 +27,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import manifestor.util.ManifestUtil;
 
 import com.google.common.base.Optional;
@@ -54,6 +59,7 @@ import com.google.common.collect.Maps;
  *      </servlet>
  * </code>
  */
+@Api(value = "Application Information")
 @Path("/v1.0")
 @Produces({APPLICATION_JSON})
 public class ApplicationInfoResource {
@@ -62,7 +68,7 @@ public class ApplicationInfoResource {
 
     /**
      * Required by Jersey.
-     * Setup and load the respource using other constructor from Application context.
+     * Setup and load the resource using other constructor from Application context.
      */
     public ApplicationInfoResource() {
         final Map<String, String> emptyMap = Maps.newHashMap();
@@ -76,6 +82,9 @@ public class ApplicationInfoResource {
     @GET
     @Path("info")
     @Produces({APPLICATION_JSON})
+    @ApiOperation(value = "Display application information from the manifest")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "No manifest information could be found")})
     public Response getInfo() {
         if (optionalManifest.isPresent()) {
             return Response.ok(optionalManifest.get()).build();

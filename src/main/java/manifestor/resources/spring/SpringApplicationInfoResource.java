@@ -16,13 +16,26 @@
 
 package manifestor.resources.spring;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import manifestor.resources.ApplicationInfoResource;
+import manifestor.util.ManifestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.ServletContext;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+
+import java.io.InputStream;
+import java.util.Map;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -34,8 +47,31 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @Component
 public class SpringApplicationInfoResource extends ApplicationInfoResource {
 
-    @Autowired
-    public SpringApplicationInfoResource(@Value("${manifestor.implementation.title}") final String implementationTitle) {
-        super(implementationTitle);
+    @Context
+    private ServletContext servletContext;
+
+    @GET
+    @Path("info")
+    @Produces({APPLICATION_JSON})
+    @ApiOperation(value = "Display application information from the manifest")
+    @ApiResponses(value = {
+            @ApiResponse(code = 404, message = "No manifest information could be found")})
+    public Response getInfo() {
+        Optional<Map<String, String>> manifest = getManifest();
+
+        if (manifest.isPresent()) {
+            return Response.ok(manifest.get()).build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    public Optional<Map<String, String>> getManifest() {
+        InputStream manifestStream = servletContext.getResourceAsStream("/META-INF/MANIFEST.MF");
+        if (manifestStream == null) {
+            return Optional.absent();
+        }
+
+        return ManifestUtil.readManifestFromInputStream(manifestStream);
     }
 }

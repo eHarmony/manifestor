@@ -18,6 +18,7 @@ package manifestor.resources;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import javax.ws.rs.GET;
